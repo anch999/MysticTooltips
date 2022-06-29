@@ -18,7 +18,7 @@
 <Include file="Libs\DewdropLib\embeds.xml"/>
 <Script file="Libs\DewdropLib\Dewdrop-2.0\Dewdrop-2.0.lua"/>
 
-<Script file="MysticExtended.lua"/>
+<Script file="MysticTooltips.lua"/>
 
 
 </Ui>

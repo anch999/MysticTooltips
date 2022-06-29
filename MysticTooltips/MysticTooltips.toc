@@ -1,0 +1,12 @@
+## Interface: 30300
+## Title: MysticTooltips
+## Notes: Specialization Menu For Ascension
+## Author: Anch
+## SavedVariables: MysticTooltipsDB
+## SavedVariablesPerCharacter: MysticTooltipsDBChar
+## X-Category: UnitFrame
+## X-OptionsFrame: MysticTooltipsOptionsFrame
+## DefaultState: enabled
+## Version: 1.0
+
+embeds.xml
