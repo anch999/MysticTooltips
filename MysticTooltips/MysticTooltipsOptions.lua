@@ -1,63 +1,61 @@
-function SpecMenuOptions_Toggle()
-    if InterfaceOptionsFrame:IsVisible() then
-		InterfaceOptionsFrame:Hide();
-	else
-		InterfaceOptionsFrame_OpenToCategory("SpecMenu");
-	end
-end
+local realmName = GetRealmName();
+local guildName = GetGuildInfo("Player");
+local playerName = UnitName("player");
 
-local function SpecMenuOptions_QuickSwap2_OnClick()
+local function MysticTooltipsOptions_DisplayNameSel_OnClick()
 	local thisID = this:GetID();
-	UIDropDownMenu_SetSelectedID(SpecMenuOptions_QuickSwap2, thisID);
-	SpecMenu_QuickswapNum2 = thisID;
-	SpecMenuDB["Specs"][SpMenuSpecNum][3] = SpecMenu_QuickswapNum2;
+	UIDropDownMenu_SetSelectedID(MysticTooltipsOptions_DisplayNameSel, thisID);
+	MysticTooltipsDB[realmName]["Account"][guildName]["DisplayName"] = MysticTooltipsDB[realmName]["Account"][guildName]["charList"][thisID];
+	MysticTooltips_DisplayNameUpdate()
 end
 
-function SpecMenuOptions_QuickSwap2_Initialize()
-	--Loads the spec list into the quickswap2 dropdown menu
-	local info;
-	for k,v in pairs(SpecMenuDB["Specs"]) do
-		info = {
-			text = SpecMenuDB["Specs"][k][1];
-			func = SpecMenuOptions_QuickSwap2_OnClick;
-		};
-			UIDropDownMenu_AddButton(info);
-			lastSpecPos = k + 1
+local function MysticTooltipsOptions_DisplayNameSel_Initialize()
+	--Loads the list off characters in current guild into the dropdown menu
+	if guildName ~= nil then
+		local info;
+		for k,v in pairs(MysticTooltipsDB[realmName]["Account"][guildName]["charList"]) do
+			info = {
+				text = v;
+				func = MysticTooltipsOptions_DisplayNameSel_OnClick;
+			};
+				UIDropDownMenu_AddButton(info);
+		end
 	end
-	--Adds Lastspec as the last entry on the quickswap2 dropdown menu 
-	info = {
-		text = specmenu_options_swap;
-		func = SpecMenuOptions_QuickSwapLastSpec_OnClick;
-	};
-		UIDropDownMenu_AddButton(info);
-		quickSwapNum = "2"
-
 end
 
-local function SpecMenu_DropDownInitialize()
+local function MysticTooltips_DropDownInitialize()
+	local id
 	--Setup for Dropdown menus in the settings
-	UIDropDownMenu_Initialize(SpecMenuOptions_QuickSwap2, SpecMenuOptions_QuickSwap2_Initialize);
-	UIDropDownMenu_SetWidth(SpecMenuOptions_QuickSwap2, 150);
-	UIDropDownMenu_SetSelectedID(SpecMenuOptions_QuickSwap2, SpecMenuDB["Specs"][menuID][3]);
-	UIDropDownMenu_SetText(SpecMenuOptions_QuickSwap2, SpecMenuDB["Specs"][SpecMenuDB["Specs"][menuID][3]][1]);
+	if guildName ~= nil then
+		UIDropDownMenu_Initialize(MysticTooltipsOptions_DisplayNameSel, MysticTooltipsOptions_DisplayNameSel_Initialize);
+		for k,v in pairs(MysticTooltipsDB[realmName]["Account"][guildName]["charList"]) do
+			if MysticTooltipsDB[realmName]["Account"][guildName]["DisplayName"] == v then
+				id = k
+			end
+		end
+		UIDropDownMenu_SetSelectedID(MysticTooltipsOptions_DisplayNameSel, id);
+		UIDropDownMenu_SetText(MysticTooltipsOptions_DisplayNameSel, MysticTooltipsDB[realmName]["Account"][guildName]["DisplayName"])
+	end
+	
 end
 
 --Creates the options frame and all its assets
-function SpecMenuOptions_CreateFrame()
-	local mainframe = CreateFrame("FRAME", "SpecMenuOptionsFrame", InterfaceOptionsFrame, nil);
+function MysticTooltipsOptions_CreateFrame()
+	local mainframe = CreateFrame("FRAME", "MysticTooltipsOptionsFrame", InterfaceOptionsFrame, nil);
     local fstring = mainframe:CreateFontString(mainframe, "OVERLAY", "GameFontNormal");
-	fstring:SetText("Spec Menu Settings");
-	fstring:SetPoint("TOPLEFT", 15, -15)
-	mainframe.name = "SpecMenu";
+	fstring:SetText("Mystic Tooltips Settings");
+	fstring:SetPoint("TOPLEFT", 15, -15);
+	mainframe.name = "MysticTooltips";
 	InterfaceOptions_AddCategory(mainframe);
 
-	local quickswap2 = CreateFrame("Button", "SpecMenuOptions_QuickSwap2", SpecMenuOptionsFrame, "UIDropDownMenuTemplate");
-    quickswap2:SetPoint("TOPLEFT", SpecMenuOptionsFrame, "TOPLEFT", 190, -89);
-	quickswap2.Lable = quickswap2:CreateFontString(nil , "BORDER", "GameFontNormal")
-	quickswap2.Lable:SetJustifyH("RIGHT")
-	quickswap2.Lable:SetPoint("BOTTOMLEFT", quickswap2, "BOTTOMLEFT", 20, -20)
-	quickswap2.Lable:SetText("QuickSwap Right Click")
+	local namesel = CreateFrame("Button", "MysticTooltipsOptions_DisplayNameSel", MysticTooltipsOptionsFrame, "UIDropDownMenuTemplate");
+    namesel:SetPoint("TOPLEFT", MysticTooltipsOptionsFrame, "TOPLEFT", 5, -40);
+	namesel.Lable = namesel:CreateFontString(nil , "BORDER", "GameFontNormal");
+	namesel.Lable:SetJustifyH("RIGHT");
+	namesel:SetWidth(150);
+	namesel.Lable:SetPoint("BOTTOMLEFT", namesel, "BOTTOMLEFT", 20, -20);
+	namesel.Lable:SetText("Select Display Name For Guild");
 
-	SpecMenu_DropDownInitialize();
+	MysticTooltips_DropDownInitialize();
 end
 

@@ -19,6 +19,6 @@
 <Script file="Libs\DewdropLib\Dewdrop-2.0\Dewdrop-2.0.lua"/>
 
 <Script file="MysticTooltips.lua"/>
-
+<Script file="MysticTooltipsOptions.lua"/>
 
 </Ui>

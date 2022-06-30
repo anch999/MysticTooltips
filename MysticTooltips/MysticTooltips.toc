@@ -1,10 +1,10 @@
 ## Interface: 30300
 ## Title: MysticTooltips
-## Notes: Specialization Menu For Ascension
+## Notes: Shows Enchants of guild members who have the addon in the tooltips.
 ## Author: Anch
 ## SavedVariables: MysticTooltipsDB
 ## SavedVariablesPerCharacter: MysticTooltipsDBChar
-## X-Category: UnitFrame
+## X-Category: Tooltips
 ## X-OptionsFrame: MysticTooltipsOptionsFrame
 ## DefaultState: enabled
 ## Version: 1.0
