@@ -245,8 +245,9 @@ end
 local function getGuildName()
     guildName = GetGuildInfo("Player");
     addonLoaded();
+    addon:UnregisterEvent("GUILD_ROSTER_UPDATE");
  end
 
 function addon:OnInitialize()
-    addon:RegisterEvent("GUILD_ROSTER_UPDATE",getGuildName); 
+    addon:RegisterEvent("GUILD_ROSTER_UPDATE",getGuildName);
 end
