@@ -153,7 +153,7 @@ local function MysticTooltips_DisplayNameReceive(event, knownList, init, from)
     end
 end
 
---Update of display name received
+--Receive new enchants as there learned
 local function MysticTooltips_NewEnchantReceive(event, knownList, init, from)
     if event ==  "MYSTICTOOLTIPS_NEWENCHANT_UPDATE" then
         if from ~= playerName  then
@@ -173,6 +173,7 @@ end
 -- COMMENTATOR_SKIRMISH_QUEUE_REQUEST
 --      ASCENSION_REFORGE_ENCHANTMENT_LEARNED
 --          enchantID
+-- Sends new learn enchant to other addons
 function addon:COMMENTATOR_SKIRMISH_QUEUE_REQUEST(event, subevent, data ,...)
     if subevent == "ASCENSION_REFORGE_ENCHANTMENT_LEARNED" then
         RE = GetREData(data);
@@ -194,7 +195,7 @@ local function addLine(tooltip, id)
     tooltip:AddLine(id)
     tooltip:Show()
 end
-
+--adds whether you know or dont know an enchant to item tooltip
 local function addLineSelf(tooltip, known)
     if known then
         tooltip:AddLine("|cFF00FF00Mystic Enchant Known")
