@@ -1,6 +1,4 @@
-local realmName = GetRealmName();
-local guildName = GetGuildInfo("Player");
-local playerName = UnitName("player");
+local realmName, guildName, playerName;
 
 local function MysticTooltipsOptions_DisplayNameSel_OnClick()
 	local thisID = this:GetID();
@@ -23,7 +21,8 @@ local function MysticTooltipsOptions_DisplayNameSel_Initialize()
 	end
 end
 
-local function MysticTooltips_DropDownInitialize()
+function MysticTooltips_DropDownInitialize()
+	MysticTooltips_GetPlayerDetails();
 	local id
 	--Setup for Dropdown menus in the settings
 	if guildName ~= nil then
@@ -41,6 +40,7 @@ end
 
 --Creates the options frame and all its assets
 function MysticTooltipsOptions_CreateFrame()
+	
 	local mainframe = CreateFrame("FRAME", "MysticTooltipsOptionsFrame", InterfaceOptionsFrame, nil);
     local fstring = mainframe:CreateFontString(mainframe, "OVERLAY", "GameFontNormal");
 	fstring:SetText("Mystic Tooltips Settings");
@@ -55,7 +55,5 @@ function MysticTooltipsOptions_CreateFrame()
 	namesel:SetWidth(150);
 	namesel.Lable:SetPoint("BOTTOMLEFT", namesel, "BOTTOMLEFT", 20, -20);
 	namesel.Lable:SetText("Select Display Name For Guild");
-
-	MysticTooltips_DropDownInitialize();
 end
 
