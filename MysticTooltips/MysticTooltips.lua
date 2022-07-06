@@ -207,6 +207,21 @@ local function addLineSelf(tooltip, known)
         tooltip:AddLine("|cffFF3F40Not Known")
     end
 end
+
+
+-- Item tooltip
+local function attachItemTooltip(self)
+    local focus = GetMouseFocus();
+    local bagID, slotID = focus:GetParent():GetID(), focus:GetID();
+    local id = getMysticCharList(GetREInSlot(bagID,slotID), "Item");
+    if GetREInSlot(bagID, slotID) and IsReforgeEnchantmentKnown(GetREInSlot(bagID,slotID)) then
+        addLineSelf(self, true)
+    elseif GetREInSlot(bagID, slotID) then
+        addLineSelf(self, false)
+    end
+        if id then addLine(self, id) end
+end
+local function loadTooltips()
 --Spell tooltip
 GameTooltip:HookScript("OnTooltipSetSpell", function(self)
     local id = select(3, self:GetSpell())
@@ -221,25 +236,13 @@ hooksecurefunc("SetItemRef", function(link, ...)
     if id then addLine(ItemRefTooltip, id) end;
 end)
 
--- Item tooltip
-local function attachItemTooltip(self)
-    local focus = GetMouseFocus();
-    local bagID, slotID = focus:GetParent():GetID(), focus:GetID();
-    local id = getMysticCharList(GetREInSlot(bagID,slotID), "Item");
-    if GetREInSlot(bagID, slotID) and IsReforgeEnchantmentKnown(GetREInSlot(bagID,slotID)) then
-        addLineSelf(self, true)
-    elseif GetREInSlot(bagID, slotID) then
-        addLineSelf(self, false)
-    end
-        if id then addLine(self, id) end
-end
-
 GameTooltip:HookScript("OnTooltipSetItem", attachItemTooltip)
 ItemRefTooltip:HookScript("OnTooltipSetItem", attachItemTooltip)
 
+end
 
 local function addonLoaded()
-    
+    loadTooltips();
     MysticTooltips_Setup();
     MysticTooltips_DropDownInitialize();
     addon:RegisterComm("MYSTICTOOLTIPS_SEND", MysticTooltips_Receive);
