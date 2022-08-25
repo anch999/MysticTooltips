@@ -7,6 +7,6 @@
 ## X-Category: Tooltips
 ## X-OptionsFrame: MysticTooltipsOptionsFrame
 ## DefaultState: enabled
-## Version: 1.0.1
+## Version: 1.0.3
 
 embeds.xml

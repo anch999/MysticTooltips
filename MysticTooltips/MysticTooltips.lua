@@ -1,7 +1,5 @@
-local MysticTooltips, MTip = ...
-local addonName = "MysticTooltips";
-_G[addonName] = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "AceEvent-3.0", "AceComm-3.0", "AceSerializer-3.0")
-local addon = _G[addonName];
+
+MysticTooltips = LibStub("AceAddon-3.0"):NewAddon("MysticTooltips", "AceConsole-3.0", "AceEvent-3.0", "AceComm-3.0", "AceSerializer-3.0")
 local select, UnitBuff, UnitDebuff, UnitAura, UnitGUID, tonumber, strfind, hooksecurefunc =
     select, UnitBuff, UnitDebuff, UnitAura, UnitGUID, tonumber, strfind, hooksecurefunc
 
@@ -10,6 +8,7 @@ function MysticTooltips_GetPlayerDetails()
 	realmName = GetRealmName();
     guildName = GetGuildInfo("Player");
     playerName = UnitName("player");
+    MysticTooltips:UnregisterEvent("GUILD_ROSTER_UPDATE");
 end
 
 --Setup for addon database
@@ -67,8 +66,8 @@ local function MysticTooltips_Broadcast(ComID)
     sendData["accountKey"] = MysticTooltipsDB[realmName]["Account"][guildName]["accountKey"];
     sendData["displayName"] = MysticTooltipsDB[realmName]["Account"][guildName]["DisplayName"];
     sendData["knownList"] = knownList;
-    sendData = addon:Serialize(sendData);
-    addon:SendCommMessage(ComID, sendData, "GUILD", playerName);
+    sendData = MysticTooltips:Serialize(sendData);
+    MysticTooltips:SendCommMessage(ComID, sendData, "GUILD", playerName);
     end
 end
 
@@ -76,7 +75,7 @@ end
 local function MysticTooltips_Receive(event, knownList, init, from)
         if event ==  "MYSTICTOOLTIPS_SEND" or event == "MYSTICTOOLTIPS_REQUEST_UPDATE" then
             if from ~= playerName  then
-				local success, data = addon:Deserialize(knownList);
+				local success, data = MysticTooltips:Deserialize(knownList);
                 if success then
                     if MysticTooltipsDB[realmName]["Guilds"][guildName][data["accountKey"]] ~= nil then else
                         MysticTooltipsDB[realmName]["Guilds"][guildName][data["accountKey"]] = {};
@@ -135,8 +134,8 @@ function MysticTooltips_DisplayNameUpdate(name, key)
     if guildName ~= nil then
         sendData["accountKey"] = MysticTooltipsDB[realmName]["Account"][guildName]["accountKey"];
         sendData["displayName"] = MysticTooltipsDB[realmName]["Account"][guildName]["DisplayName"];
-        sendData = addon:Serialize(sendData);
-        addon:SendCommMessage("MYSTICTOOLTIPS_DISPLAYNAME_UPDATE", sendData, "GUILD", playerName);
+        sendData = MysticTooltips:Serialize(sendData);
+        MysticTooltips:SendCommMessage("MYSTICTOOLTIPS_DISPLAYNAME_UPDATE", sendData, "GUILD", playerName);
     end
 end
 
@@ -144,7 +143,7 @@ end
 local function MysticTooltips_DisplayNameReceive(event, knownList, init, from)
     if event ==  "MYSTICTOOLTIPS_DISPLAYNAME_UPDATE" then
         if from ~= playerName  then
-            local success, data = addon:Deserialize(knownList);
+            local success, data = MysticTooltips:Deserialize(knownList);
             if success then
                 if MysticTooltipsDB[realmName]["Guilds"][guildName][data["accountKey"]] == nil then
                     MysticTooltipsDB[realmName]["Guilds"][guildName][data["accountKey"]] = {};
@@ -160,7 +159,7 @@ end
 local function MysticTooltips_NewEnchantReceive(event, knownList, init, from)
     if event ==  "MYSTICTOOLTIPS_NEWENCHANT_UPDATE" then
         if from ~= playerName  then
-            local success, data = addon:Deserialize(knownList);
+            local success, data = MysticTooltips:Deserialize(knownList);
             if success then
                 if MysticTooltipsDB[realmName]["Guilds"][guildName][data["accountKey"]] == nil then
                     MysticTooltipsDB[realmName]["Guilds"][guildName][data["accountKey"]] = {};
@@ -177,7 +176,7 @@ end
 --      ASCENSION_REFORGE_ENCHANTMENT_LEARNED
 --          enchantID
 -- Sends new learned enchant to other addons
-function addon:COMMENTATOR_SKIRMISH_QUEUE_REQUEST(event, subevent, data ,...)
+function MysticTooltips:COMMENTATOR_SKIRMISH_QUEUE_REQUEST(event, subevent, data ,...)
     if subevent == "ASCENSION_REFORGE_ENCHANTMENT_LEARNED" then
         RE = GetREData(data);
         if RE.enchantID ~= 0 and guildName then
@@ -185,8 +184,8 @@ function addon:COMMENTATOR_SKIRMISH_QUEUE_REQUEST(event, subevent, data ,...)
                 sendData["accountKey"] = MysticTooltipsDB[realmName]["Account"][guildName]["accountKey"];
                 sendData["displayName"] = MysticTooltipsDB[realmName]["Account"][guildName]["DisplayName"];
                 sendData["newEnchant"] = RE.enchantID;
-                sendData = addon:Serialize(sendData);
-                addon:SendCommMessage("MYSTICTOOLTIPS_NEWENCHANT_UPDATE", sendData, "GUILD", playerName);
+                sendData = MysticTooltips:Serialize(sendData);
+                MysticTooltips:SendCommMessage("MYSTICTOOLTIPS_NEWENCHANT_UPDATE", sendData, "GUILD", playerName);
         end
     
     end
@@ -212,6 +211,7 @@ end
 -- Item tooltip
 local function attachItemTooltip(self)
     local focus = GetMouseFocus();
+    if focus and focus:GetID() ~= nil and focus:GetParent() ~= nil then
     local bagID, slotID = focus:GetParent():GetID(), focus:GetID();
     local id = getMysticCharList(GetREInSlot(bagID,slotID), "Item");
     if GetREInSlot(bagID, slotID) and IsReforgeEnchantmentKnown(GetREInSlot(bagID,slotID)) then
@@ -220,7 +220,9 @@ local function attachItemTooltip(self)
         addLineSelf(self, false)
     end
         if id then addLine(self, id) end
+    end
 end
+
 local function loadTooltips()
 --Spell tooltip
 GameTooltip:HookScript("OnTooltipSetSpell", function(self)
@@ -241,26 +243,21 @@ ItemRefTooltip:HookScript("OnTooltipSetItem", attachItemTooltip)
 
 end
 
-local function addonLoaded()
-    loadTooltips();
-    MysticTooltips_Setup();
-    MysticTooltips_DropDownInitialize();
-    addon:RegisterComm("MYSTICTOOLTIPS_SEND", MysticTooltips_Receive);
-    addon:RegisterComm("MYSTICTOOLTIPS_REQUEST_UPDATE", MysticTooltips_Receive);
-    addon:RegisterComm("MYSTICTOOLTIPS_DISPLAYNAME_UPDATE", MysticTooltips_DisplayNameReceive);
-    addon:RegisterComm("MYSTICTOOLTIPS_NEWENCHANT_UPDATE", MysticTooltips_NewEnchantReceive);
+function MysticTooltips:OnInitialize()
+    MysticTooltips:RegisterEvent("GUILD_ROSTER_UPDATE",MysticTooltips_GetPlayerDetails);
+    MysticTooltips:RegisterComm("MYSTICTOOLTIPS_SEND", MysticTooltips_Receive);
+    MysticTooltips:RegisterComm("MYSTICTOOLTIPS_REQUEST_UPDATE", MysticTooltips_Receive);
+    MysticTooltips:RegisterComm("MYSTICTOOLTIPS_DISPLAYNAME_UPDATE", MysticTooltips_DisplayNameReceive);
+    MysticTooltips:RegisterComm("MYSTICTOOLTIPS_NEWENCHANT_UPDATE", MysticTooltips_NewEnchantReceive);
     MysticTooltips_Broadcast("MYSTICTOOLTIPS_SEND");
-    addon:RegisterEvent("COMMENTATOR_SKIRMISH_QUEUE_REQUEST");
+    MysticTooltips:RegisterEvent("COMMENTATOR_SKIRMISH_QUEUE_REQUEST");
     
 end
 
-local function getGuildName()
+function MysticTooltips:OnEnable()
     MysticTooltips_GetPlayerDetails();
-    addonLoaded();
-    addon:UnregisterEvent("GUILD_ROSTER_UPDATE");
- end
-
-function addon:OnEnable()
+    loadTooltips();
+    MysticTooltips_Setup();
+    MysticTooltips_DropDownInitialize();
     MysticTooltipsOptions_CreateFrame();
-    addon:RegisterEvent("GUILD_ROSTER_UPDATE",getGuildName);
 end
